@@ -36,6 +36,10 @@
     <CharacterSet>NotSet</CharacterSet>
     <_ProjectFileVersion>10.0.40219.BlazesRus</_ProjectFileVersion>
   </PropertyGroup>
+  <PropertyGroup Label="UserMacros">
+    <RootDirectory>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)..\..\'))</RootDirectory>
+    <ParentOfRoot>$([System.IO.Path]::GetFullPath('$(RootDirectory)\..\'))</ParentOfRoot>
+  </PropertyGroup>
   <Choose>
     <When Condition="'$(Configuration)' == 'Debug'">
       <PropertyGroup>
@@ -48,6 +52,21 @@
       </PropertyGroup>
     </Otherwise>
   </Choose>
+  <PropertyGroup>
+    <SDLDir>$([System.IO.Path]::GetFullPath('$(ParentOfRoot)\SDL\'))</SDLDir>
+    <SDLOutputDir>$([System.IO.Path]::GetFullPath('$(ParentOfRoot)TangeriaCoop\src\_SDL2VC\'))</SDLOutputDir>
+    <SDLIncludesDir>$([System.IO.Path]::GetFullPath('$(SDLDir)include\'))</SDLIncludesDir>
+    <SDLLibDir Condition="'$(Configuration)' != 'ReleaseC99'">$([System.IO.Path]::GetFullPath('$(SDLOutputDir)$(Platform)\'))</SDLLibDir>
+    <SDLLibDir Condition="'$(Configuration)' == 'ReleaseC99'">$([System.IO.Path]::GetFullPath('$(SDLOutputDir)Clang$(Platform)\'))</SDLLibDir>
+    <SDLLibrary>$([System.IO.Path]::GetFullPath('$(SDLLibDir)SDL2.lib'))</SDLLibrary>
+<!--
+    <SDLImageLibrary>$([System.IO.Path]::GetFullPath('$(SDLLibDir)SDL2_image.lib'))</SDLImageLibrary>
+    <SDLMixerLibrary>$([System.IO.Path]::GetFullPath('$(SDLLibDir)SDL2_mixer.lib'))</SDLMixerLibrary>
+    <SDLTTFLibrary>$([System.IO.Path]::GetFullPath('$(SDLLibDir)SDL2_ttf.lib'))</SDLTTFLibrary>
+    <FreeTypeLibrary>$([System.IO.Path]::GetFullPath('$(SDLLibDir)freetype.lib'))</FreeTypeLibrary>
+-->
+    <SDLNetLibrary>$([System.IO.Path]::GetFullPath('$(SDLLibDir)SDL_net.lib'))</SDLNetLibrary>
+  </PropertyGroup>
   <PropertyGroup Label="ToolsetOptions">
     <!-- 142 for VS2019(Default);143 for VS2022-->
     <PlatformToolset Condition="'$(Configuration)' == 'ReleaseC99'">ClangCL</PlatformToolset>
@@ -64,7 +83,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+  <PropertyGroup Condition="'$(ConfigurationStyle)'=='Release'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
@@ -76,33 +95,19 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <!--
-  Converting Relative to Absolute Path based on https://stackoverflow.com/questions/176931/how-can-i-get-msbuild-to-evaluate-and-print-the-full-path-when-given-a-relative
-  $([System.IO.Path]::GetFullPath('XXX'))
-  -->
-  <!-- Using SDL 2.X files (including SDL_Net later)-->
-  <PropertyGroup Label="UserMacros">
-    <ParentOfRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)..\..\..\'))</ParentOfRoot>
-    <!--     <RootDirectory>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)..\..\'))</RootDirectory> -->
-  </PropertyGroup>
-  <PropertyGroup>
-    <SDLDir>$([System.IO.Path]::GetFullPath('$(ParentOfRoot)SDL\include\'))</SDLDir>
-    <SDLOutputDir>$([System.IO.Path]::GetFullPath('$(ParentOfRoot)SDL2Output\'))</SDLOutputDir>
-    <SDLLibrary>$([System.IO.Path]::GetFullPath('$(SDLOutputDir)$(Platform)\$(Configuration)\SDL2.lib'))</SDLLibrary>
-    <SDLNetLibrary>$([System.IO.Path]::GetFullPath('$(SDLOutputDir)$(Platform)\$(Configuration)\SDL_net.lib'))</SDLNetLibrary>
-  </PropertyGroup>
   <PropertyGroup Label="AlternativeIncludePaths">
     <IncludePath>$(SDLDir);%(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Label="OutputInfo">
-    <OutDir>$(SDLOutputDir)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SDLOutputDir)\ObjectFiles\$(ProjectName)\$(Configuration)_$(Platform)\</IntDir>
+    <OutDir>$(SDLOutputDir)$(Platform)\</OutDir>
+    <IntDir>$(SDLOutputDir)ObjectFiles\$(ProjectName)\$(Configuration)_$(Platform)\</IntDir>
+    <IncludePath>$(SDLIncludesDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <LinkIncremental>true</LinkIncremental>
     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+  <PropertyGroup Condition="'$(ConfigurationStyle)'=='Release'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
